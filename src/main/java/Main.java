@@ -14,6 +14,62 @@ public class Main {
     public static void main(String[] args) {
 
         try {
+//            https://geoservicos.pbh.gov.br/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=ide_bhgeo:EMPRESAS_OUTROS_PORTES&srsName=EPSG:31983&outputFormat=application%2Fjson
+            JSONObject j = getPBH("EMPRESAS_OUTROS_PORTES");
+
+            JSONArray ja = j.getJSONArray("features");
+
+            JSONArray hosp = new JSONArray();
+
+            for (int i = 0; i < ja.length(); i++) {
+
+                JSONObject jo = ja.getJSONObject(i);
+                JSONObject properties = jo.getJSONObject("properties");
+                JSONObject geometry = jo.getJSONObject("geometry");
+                JSONArray coordinates = geometry.getJSONArray("coordinates");
+                double latitude = coordinates.getDouble(1);
+                double longitude = coordinates.getDouble(0);
+
+                JSONObject h = new JSONObject();
+
+//                System.out.println(properties.toString());
+                try {
+                    String category = properties.getString("DESCRICAO_CNAE");
+                    if (category.contains("ATENDIMENTO HOSPITALAR")) {
+                        h.put("category", category);
+//                    h.put("sigla", properties.getString("CNAE_SECUNDARIAS"));
+                        h.put("name", properties.getString("NOME"));
+                        h.put("fantasyName", properties.getString("NOME"));
+                        h.put("document", properties.getString("CNPJ"));
+//                    h.put("id", properties.getInt("ID_EQ_SAUDE"));
+                        h.put("typeAddress", properties.getString("DESC_LOGRADOURO"));
+                        h.put("address", properties.getString("NOME_LOGRADOURO"));
+                        h.put("number", properties.getInt("NUMERO_IMOVEL"));
+                        h.put("neighborhood", properties.getString("NOME_BAIRRO"));
+
+//                h.put("phone", properties.getString("TELEFONE"));
+                        h.put("latitude", latitude);
+                        h.put("longitude", longitude);
+
+                        hosp.put(h);
+                    }
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+
+            }
+
+            System.out.println(hosp);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+
+    }
+
+    public static void hospitais() {
+
+        try {
             JSONObject j = getPBH("HOSPITAIS");
 
             JSONArray ja = j.getJSONArray("features");
@@ -26,8 +82,8 @@ public class Main {
                 JSONObject properties = jo.getJSONObject("properties");
                 JSONObject geometry = jo.getJSONObject("geometry");
                 JSONArray coordinates = geometry.getJSONArray("coordinates");
-                double latitude = coordinates.getDouble(0);
-                double longitude = coordinates.getDouble(1);
+                double latitude = coordinates.getDouble(1);
+                double longitude = coordinates.getDouble(0);
 
                 JSONObject h = new JSONObject();
 
